@@ -1,0 +1,489 @@
+local UIS = game:GetService("UserInputService")
+local CoreGui = game:GetService("CoreGui")
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+local TeleportService = game:GetService("TeleportService")
+local HttpService = game:GetService("HttpService")
+local MarketplaceService = game:GetService("MarketplaceService")
+local Players = game:GetService("Players")
+local Player = Players.LocalPlayer
+
+-- Detect Executor
+local Executor = "Unknown"
+if identifyexecutor then
+    Executor = identifyexecutor()
+end
+
+local GameName = "Unknown Game"
+pcall(function()
+    GameName = MarketplaceService:GetProductInfo(game.PlaceId).Name
+end)
+
+local ET = Instance.new("ScreenGui")
+ET.Name = "ProjectET_v3"
+ET.Parent = CoreGui
+ET.ResetOnSpawn = false
+
+local ET_Main = Instance.new("Frame")
+ET_Main.Name = "ET_Main"
+ET_Main.Size = UDim2.new(0, 500, 0, 300)
+ET_Main.Position = UDim2.new(0.5, -250, 0.5, -150)
+ET_Main.BackgroundColor3 = Color3.fromRGB(12, 12, 12)
+ET_Main.BorderSizePixel = 0
+ET_Main.Active = true 
+ET_Main.Parent = ET
+
+local MainStroke = Instance.new("UIStroke", ET_Main)
+MainStroke.Color = Color3.fromRGB(255, 255, 255)
+MainStroke.Thickness = 1.5
+Instance.new("UICorner", ET_Main).CornerRadius = UDim.new(0, 8)
+
+local ET_Toggle = Instance.new("TextButton")
+ET_Toggle.Name = "ET_Toggle"
+ET_Toggle.Size = UDim2.new(0, 40, 0, 40)
+ET_Toggle.Position = UDim2.new(0, 20, 0, 20)
+ET_Toggle.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+ET_Toggle.Text = ""
+ET_Toggle.Active = true
+ET_Toggle.Parent = ET
+Instance.new("UICorner", ET_Toggle).CornerRadius = UDim.new(0, 8)
+
+local TStroke = Instance.new("UIStroke", ET_Toggle)
+TStroke.Color = Color3.fromRGB(255, 255, 255)
+TStroke.Thickness = 1.5
+
+local TLogo = Instance.new("ImageLabel")
+TLogo.Size = UDim2.new(0, 26, 0, 26)
+TLogo.Position = UDim2.new(0.5, -13, 0.5, -13)
+TLogo.BackgroundTransparency = 1
+TLogo.Image = "rbxassetid://90854014659104"
+TLogo.ZIndex = 5
+TLogo.Parent = ET_Toggle
+
+local TitleBar = Instance.new("Frame")
+TitleBar.Size = UDim2.new(1, 0, 0, 38)
+TitleBar.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
+TitleBar.BorderSizePixel = 0
+TitleBar.Parent = ET_Main
+Instance.new("UICorner", TitleBar).CornerRadius = UDim.new(0, 8)
+
+local TitleLogo = Instance.new("ImageLabel")
+TitleLogo.Size = UDim2.new(0, 22, 0, 22)
+TitleLogo.Position = UDim2.new(0, 10, 0.5, -11)
+TitleLogo.BackgroundTransparency = 1
+TitleLogo.Image = "rbxassetid://90854014659104"
+TitleLogo.ZIndex = 10
+TitleLogo.Parent = TitleBar
+
+local Title = Instance.new("TextLabel")
+Title.Position = UDim2.new(0, 40, 0, 0)
+Title.Size = UDim2.new(1, -50, 1, 0)
+Title.BackgroundTransparency = 1
+Title.Text = "Project ET v1.0 Beta | " .. GameName
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 14
+Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.ZIndex = 10
+Title.Parent = TitleBar
+
+local Sidebar = Instance.new("Frame")
+Sidebar.Size = UDim2.new(0, 120, 1, -50)
+Sidebar.Position = UDim2.new(0, 6, 0, 44)
+Sidebar.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+Sidebar.Parent = ET_Main
+Instance.new("UICorner", Sidebar).CornerRadius = UDim.new(0, 6)
+
+local SLayout = Instance.new("UIListLayout", Sidebar)
+SLayout.Padding = UDim.new(0, 5)
+SLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+Instance.new("UIPadding", Sidebar).PaddingTop = UDim.new(0, 8)
+
+local PageContainer = Instance.new("Frame")
+PageContainer.Size = UDim2.new(1, -142, 1, -50)
+PageContainer.Position = UDim2.new(0, 132, 0, 44)
+PageContainer.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
+PageContainer.Parent = ET_Main
+Instance.new("UICorner", PageContainer).CornerRadius = UDim.new(0, 6)
+
+local CurrentTab, CurrentPage = nil, nil
+local Running = true
+local _G = { WS = 16, JP = 50, InfJump = false, Noclip = false, RainbowUI = false, CrimESP = false, SheriffESP = false, UniESP = false, HitboxExp = false, HitboxMult = 4, CrimFinder = false, TeamDisplay = false }
+
+local function AddTab(name)
+	local Tab = Instance.new("TextButton")
+	Tab.Size = UDim2.new(0.9, 0, 0, 30)
+	Tab.BackgroundTransparency = 1
+	Tab.Text = name
+	Tab.TextColor3 = Color3.fromRGB(200, 200, 200)
+	Tab.Font = Enum.Font.GothamMedium
+	Tab.TextSize = 12
+	Tab.Parent = Sidebar
+	Instance.new("UICorner", Tab).CornerRadius = UDim.new(0, 4)
+
+	local Page = Instance.new("ScrollingFrame")
+	Page.Size = UDim2.new(1, -10, 1, -10)
+	Page.Position = UDim2.new(0, 5, 0, 5)
+	Page.BackgroundTransparency = 1
+	Page.Visible = false
+	Page.ScrollBarThickness = 2
+	Page.AutomaticCanvasSize = Enum.AutomaticSize.Y
+	Page.CanvasSize = UDim2.new(0,0,0,0)
+	Page.Parent = PageContainer
+
+	local PageLayout = Instance.new("UIListLayout", Page)
+	PageLayout.Padding = UDim.new(0, 8)
+	PageLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	Instance.new("UIPadding", Page).PaddingLeft = UDim.new(0, 5)
+
+	Tab.MouseButton1Click:Connect(function()
+		if CurrentPage then CurrentPage.Visible = false end
+		if CurrentTab then CurrentTab.BackgroundTransparency = 1 end
+		CurrentPage, CurrentTab = Page, Tab
+		Page.Visible = true
+		Tab.BackgroundTransparency = 0.9
+		Page.CanvasPosition = Vector2.new(0, 0)
+		PageLayout:ApplyLayout()
+	end)
+	return Page
+end
+
+local function AddHeader(parent, text, order)
+	local Label = Instance.new("TextLabel")
+	Label.Size = UDim2.new(1, 0, 0, 25)
+	Label.BackgroundTransparency = 1
+	Label.Text = "» " .. text
+	Label.TextColor3 = Color3.fromRGB(255, 255, 255)
+	Label.Font = Enum.Font.GothamBold
+	Label.TextSize = 14
+	Label.TextXAlignment = Enum.TextXAlignment.Left
+	Label.LayoutOrder = order or 0
+	Label.Parent = parent
+end
+
+local function AddInfoLabel(parent, text, order)
+    local Info = Instance.new("TextLabel")
+    Info.Size = UDim2.new(1, 0, 0, 20)
+    Info.BackgroundTransparency = 1
+    Info.Text = text
+    Info.TextColor3 = Color3.fromRGB(180, 180, 180)
+    Info.Font = Enum.Font.Gotham
+    Info.TextSize = 12
+    Info.TextXAlignment = Enum.TextXAlignment.Left
+    Info.LayoutOrder = order or 0
+    Info.Parent = parent
+    return Info
+end
+
+local function AddButton(parent, text, order, callback)
+    local Btn = Instance.new("TextButton")
+    Btn.Size = UDim2.new(0.95, 0, 0, 30)
+    Btn.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    Btn.Text = text
+    Btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Btn.Font = Enum.Font.Gotham
+    Btn.TextSize = 13
+    Btn.LayoutOrder = order or 0
+    Btn.Parent = parent
+    Instance.new("UICorner", Btn).CornerRadius = UDim.new(0, 4)
+    local BStroke = Instance.new("UIStroke", Btn)
+    BStroke.Color = Color3.fromRGB(40, 40, 40)
+    Btn.MouseButton1Click:Connect(callback)
+end
+
+local function AddTextBox(parent, text, placeholder, order, callback)
+	local Frame = Instance.new("Frame")
+	Frame.Size = UDim2.new(0.95, 0, 0, 35)
+	Frame.BackgroundTransparency = 1
+    Frame.LayoutOrder = order or 0
+	Frame.Parent = parent
+	local Label = Instance.new("TextLabel", Frame)
+	Label.Size = UDim2.new(0.5, 0, 1, 0)
+	Label.BackgroundTransparency = 1
+	Label.Text = text
+	Label.TextColor3 = Color3.fromRGB(180, 180, 180)
+	Label.Font = Enum.Font.Gotham
+	Label.TextSize = 13
+	Label.TextXAlignment = Enum.TextXAlignment.Left
+	local Input = Instance.new("TextBox", Frame)
+	Input.Size = UDim2.new(0, 60, 0, 25)
+	Input.Position = UDim2.new(1, -65, 0.5, -12)
+	Input.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+	Input.TextColor3 = Color3.fromRGB(255, 255, 255)
+	Input.Text = placeholder
+	Instance.new("UICorner", Input).CornerRadius = UDim.new(0, 4)
+	Input.FocusLost:Connect(function(enter) if enter then callback(Input.Text) end end)
+end
+
+local function AddToggle(parent, text, default, order, callback)
+	local Frame = Instance.new("Frame")
+	Frame.Size = UDim2.new(0.95, 0, 0, 30)
+	Frame.BackgroundTransparency = 1
+	Frame.LayoutOrder = order or 0
+	Frame.Parent = parent
+	local Label = Instance.new("TextLabel", Frame)
+	Label.Size = UDim2.new(0.7, 0, 1, 0)
+	Label.BackgroundTransparency = 1
+	Label.Text = text
+	Label.TextColor3 = Color3.fromRGB(180, 180, 180)
+	Label.Font = Enum.Font.Gotham
+	Label.TextSize = 13
+	Label.TextXAlignment = Enum.TextXAlignment.Left
+	local Box = Instance.new("TextButton", Frame)
+	Box.Size = UDim2.new(0, 35, 0, 18)
+	Box.Position = UDim2.new(1, -40, 0.5, -9)
+	Box.BackgroundColor3 = default and Color3.fromRGB(80, 80, 80) or Color3.fromRGB(30, 30, 30)
+	Box.Text = ""
+	Instance.new("UICorner", Box).CornerRadius = UDim.new(1, 0)
+	local Circle = Instance.new("Frame", Box)
+	Circle.Size = UDim2.new(0, 12, 0, 12)
+	Circle.Position = default and UDim2.new(1, -15, 0.5, -6) or UDim2.new(0, 3, 0.5, -6)
+	Circle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	Instance.new("UICorner", Circle).CornerRadius = UDim.new(1, 0)
+	local state = default
+	Box.MouseButton1Click:Connect(function()
+		state = not state
+		Circle:TweenPosition(state and UDim2.new(1, -15, 0.5, -6) or UDim2.new(0, 3, 0.5, -6), "Out", "Quad", 0.15, true)
+		Box.BackgroundColor3 = state and Color3.fromRGB(80, 80, 80) or Color3.fromRGB(30, 30, 30)
+		callback(state)
+	end)
+end
+
+local MainPage = AddTab("Main")
+local GamePage = AddTab("Game")
+local PlayerPage = AddTab("Player")
+local SettingsPage = AddTab("Settings")
+local CreditsPage = AddTab("Credits")
+
+AddHeader(MainPage, "Player Information", 1)
+AddInfoLabel(MainPage, "Username: " .. Player.Name, 2)
+AddInfoLabel(MainPage, "Display Name: " .. Player.DisplayName, 3)
+AddInfoLabel(MainPage, "Executor: " .. Executor, 4)
+local FPSLabel = AddInfoLabel(MainPage, "FPS: Calculating...", 5)
+AddHeader(MainPage, "Server Information", 6)
+local PlayerCountLabel = AddInfoLabel(MainPage, "Players: " .. #Players:GetPlayers() .. " / " .. Players.MaxPlayers, 7)
+AddInfoLabel(MainPage, "Game: " .. GameName, 8)
+
+AddHeader(GamePage, "Visuals", 1)
+AddToggle(GamePage, "Criminal ESP", false, 2, function(v) _G.CrimESP = v end)
+AddToggle(GamePage, "Sheriff ESP", false, 3, function(v) _G.SheriffESP = v end)
+AddToggle(GamePage, "Universal ESP", false, 4, function(v) _G.UniESP = v end)
+AddToggle(GamePage, "Player Display", false, 5, function(v) _G.TeamDisplay = v end)
+AddHeader(GamePage, "Sheriff Toolbox", 6)
+AddToggle(GamePage, "Hitbox Expander", false, 7, function(v) _G.HitboxExp = v end)
+AddToggle(GamePage, "Criminal Finder", false, 8, function(v) _G.CrimFinder = v end)
+AddTextBox(GamePage, "Hitbox Multiplier", "4", 9, function(v) _G.HitboxMult = tonumber(v) or 4 end)
+
+AddHeader(PlayerPage, "Player", -100)
+AddTextBox(PlayerPage, "Walk Speed", "16", 1, function(v) _G.WS = tonumber(v) or 16 end)
+AddTextBox(PlayerPage, "Jump Power", "50", 2, function(v) _G.JP = tonumber(v) or 50 end)
+AddToggle(PlayerPage, "Infinite Jump", false, 3, function(v) _G.InfJump = v end)
+AddToggle(PlayerPage, "Noclip", false, 4, function(v) _G.Noclip = v end)
+
+AddHeader(SettingsPage, "Settings", -100)
+AddHeader(SettingsPage, "Essentials", -90)
+AddButton(SettingsPage, "Rejoin Server", -87, function() TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, Player) end)
+AddButton(SettingsPage, "Server Hop", -86, function()
+    local x = HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"))
+    for _, v in pairs(x.data) do
+        if v.playing < v.maxPlayers and v.id ~= game.JobId then
+            TeleportService:TeleportToPlaceInstance(game.PlaceId, v.id, Player)
+            break
+        end
+    end
+end)
+AddButton(SettingsPage, "Destroy UI", -80, function() Running = false ET:Destroy() end)
+AddHeader(SettingsPage, "Interface", -70)
+AddToggle(SettingsPage, "Rainbow UI", false, -65, function(v) _G.RainbowUI = v end)
+AddHeader(SettingsPage, "Social", -50)
+AddButton(SettingsPage, "Copy Dev Discord", -47, function() setclipboard("@kyoshroblox") end)
+AddButton(SettingsPage, "Copy Discord Server", -45, function() setclipboard("https://discord.gg/znnJwS8Fsq") end)
+
+AddHeader(CreditsPage, "Credits", -100)
+local function AddCredInfo(text, order)
+    local l = Instance.new("TextLabel", CreditsPage)
+    l.Size = UDim2.new(1, 0, 0, 20)
+    l.BackgroundTransparency = 1
+    l.Text = text
+    l.TextColor3 = Color3.fromRGB(200, 200, 200)
+    l.Font = Enum.Font.Gotham
+    l.TextSize = 13
+    l.TextXAlignment = Enum.TextXAlignment.Left
+    l.LayoutOrder = order
+end
+AddCredInfo("Dev Information", 1) AddCredInfo("Project ET", 2) AddCredInfo("Dev Discord: @kyoshroblox", 3)
+local DevFrame = Instance.new("Frame", CreditsPage)
+DevFrame.Size = UDim2.new(1, 0, 0, 40)
+DevFrame.BackgroundTransparency = 1
+DevFrame.LayoutOrder = 4
+local DevThumb = Instance.new("ImageLabel", DevFrame)
+DevThumb.Size = UDim2.new(0, 35, 0, 35)
+DevThumb.Position = UDim2.new(0, 0, 0.5, -17)
+DevThumb.Image = "https://www.roblox.com/headshot-thumbnail/image?userId=145524584&width=420&height=420&format=png"
+Instance.new("UICorner", DevThumb).CornerRadius = UDim.new(1, 0)
+local DevName = Instance.new("TextLabel", DevFrame)
+DevName.Size = UDim2.new(1, -45, 1, 0)
+DevName.Position = UDim2.new(0, 45, 0, 0)
+DevName.BackgroundTransparency = 1
+DevName.Text = "Dev Roblox: @NickzTheCrazy"
+DevName.TextColor3 = Color3.fromRGB(200, 200, 200)
+DevName.Font = Enum.Font.Gotham
+DevName.TextSize = 13
+DevName.TextXAlignment = Enum.TextXAlignment.Left
+AddCredInfo("\nProject ET Information", 5) AddCredInfo("Project Start: March 27 2026", 6) AddCredInfo("UI Version: 1.0 Beta", 7)
+
+local function UpdateLogic()
+    for _, v in pairs(Players:GetPlayers()) do
+        if v ~= Player and v.Character then
+            local teamName = v.Team and v.Team.Name or "None"
+            local isCrim = string.find(string.lower(teamName), "crim")
+            local isSheriff = string.find(string.lower(teamName), "sheriff")
+            
+            -- Updated Player Display Logic
+            local tag = v.Character:FindFirstChild("ET_TeamTag")
+            if _G.TeamDisplay then
+                if not tag and v.Character:FindFirstChild("Head") then
+                    tag = Instance.new("BillboardGui")
+                    tag.Name = "ET_TeamTag"
+                    tag.Size = UDim2.new(0, 100, 0, 50)
+                    tag.Adornee = v.Character.Head
+                    tag.AlwaysOnTop = true
+                    tag.ExtentsOffset = Vector3.new(0, 2, 0)
+                    local txt = Instance.new("TextLabel", tag)
+                    txt.BackgroundTransparency = 1
+                    txt.Size = UDim2.new(1, 0, 1, 0)
+                    txt.Font = Enum.Font.GothamBold
+                    txt.TextSize = 14
+                    -- Changed text to strictly say [Player]
+                    txt.Text = "[Player]"
+                    txt.TextColor3 = v.TeamColor and v.TeamColor.Color or Color3.fromRGB(255, 255, 255)
+                    txt.TextStrokeTransparency = 0.5
+                    tag.Parent = v.Character
+                end
+            elseif tag then tag:Destroy() end
+
+            -- ESP Logic
+            local highlight = v.Character:FindFirstChild("ET_Highlight")
+            if _G.CrimESP or _G.SheriffESP or _G.UniESP then
+                if not highlight then
+                    highlight = Instance.new("Highlight")
+                    highlight.Name = "ET_Highlight"
+                    highlight.Parent = v.Character
+                end
+                highlight.Enabled = false
+                if _G.CrimESP and isCrim then
+                    highlight.FillColor = Color3.fromRGB(255, 0, 0)
+                    highlight.Enabled = true
+                elseif _G.SheriffESP and isSheriff then
+                    highlight.FillColor = Color3.fromRGB(0, 0, 255)
+                    highlight.Enabled = true
+                elseif _G.UniESP then
+                    highlight.FillColor = v.TeamColor and v.TeamColor.Color or Color3.fromRGB(255, 255, 255)
+                    highlight.Enabled = true
+                end
+            elseif highlight then highlight:Destroy() end
+
+            -- Criminal Finder Logic
+            local finder = v.Character:FindFirstChild("ET_Finder")
+            if _G.CrimFinder and isCrim then
+                if not finder and v.Character:FindFirstChild("Head") then
+                    finder = Instance.new("BillboardGui")
+                    finder.Name = "ET_Finder"
+                    finder.Size = UDim2.new(0, 50, 0, 50)
+                    finder.Adornee = v.Character.Head
+                    finder.AlwaysOnTop = true
+                    finder.ExtentsOffset = Vector3.new(0, 3, 0)
+                    local txt = Instance.new("TextLabel", finder)
+                    txt.BackgroundTransparency = 1
+                    txt.Size = UDim2.new(1, 0, 1, 0)
+                    txt.Text = "⚔️"
+                    txt.TextColor3 = Color3.fromRGB(255, 255, 255)
+                    txt.TextSize = 25
+                    finder.Parent = v.Character
+                end
+            elseif finder then finder:Destroy() end
+
+            -- Hitbox Logic
+            local hrp = v.Character:FindFirstChild("HumanoidRootPart")
+            if hrp then
+                if _G.HitboxExp then
+                    hrp.Size = Vector3.new(_G.HitboxMult, _G.HitboxMult, _G.HitboxMult)
+                    hrp.Transparency = 1
+                    hrp.CanCollide = false
+                else
+                    hrp.Size = Vector3.new(2, 2, 1)
+                    hrp.Transparency = 1
+                end
+            end
+        end
+    end
+end
+
+local LastTime = tick()
+local FrameCount = 0
+
+RunService.Heartbeat:Connect(function()
+    if not Running then return end
+    if Player.Character and Player.Character:FindFirstChild("Humanoid") then
+		Player.Character.Humanoid.WalkSpeed = _G.WS
+		Player.Character.Humanoid.JumpPower = _G.JP
+		if _G.Noclip then
+			for _, v in pairs(Player.Character:GetDescendants()) do
+				if v:IsA("BasePart") then v.CanCollide = false end
+			end
+		end
+	end
+    
+    UpdateLogic()
+
+    if _G.RainbowUI then
+        local hue = tick() % 5 / 5
+        local color = Color3.fromHSV(hue, 1, 1)
+        MainStroke.Color = color
+        TStroke.Color = color
+    else
+        MainStroke.Color = Color3.fromRGB(255, 255, 255)
+        TStroke.Color = Color3.fromRGB(255, 255, 255)
+    end
+
+    FrameCount = FrameCount + 1
+    if tick() - LastTime >= 1 then
+        FPSLabel.Text = "FPS: " .. FrameCount
+        PlayerCountLabel.Text = "Players: " .. #Players:GetPlayers() .. " / " .. Players.MaxPlayers
+        FrameCount = 0
+        LastTime = tick()
+    end
+end)
+
+UIS.JumpRequest:Connect(function()
+    if not Running then return end
+	if _G.InfJump and Player.Character and Player.Character:FindFirstChildOfClass("Humanoid") then
+		Player.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
+	end
+end)
+
+local function MakeDraggable(UI)
+	local dragging, dragInput, dragStart, startPos
+	UI.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			dragging = true
+			dragStart = input.Position
+			startPos = UI.Position
+			input.Changed:Connect(function() if input.UserInputState == Enum.UserInputState.End then dragging = false end end)
+		end
+	end)
+	UI.InputChanged:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then dragInput = input end end)
+	UIS.InputChanged:Connect(function(input)
+		if dragging and input == dragInput then
+			local delta = input.Position - dragStart
+			UI.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+		end
+	end)
+end
+
+MakeDraggable(ET_Main)
+MakeDraggable(ET_Toggle)
+ET_Toggle.MouseButton1Click:Connect(function() ET_Main.Visible = not ET_Main.Visible end)
+
+MainPage.Visible = true
+
