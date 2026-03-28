@@ -108,7 +108,7 @@ Instance.new("UICorner", PageContainer).CornerRadius = UDim.new(0, 6)
 
 local CurrentTab, CurrentPage = nil, nil
 local Running = true
-local _G = { WS = 16, JP = 50, InfJump = false, Noclip = false, RainbowUI = false, CrimESP = false, SheriffESP = false, UniESP = false, HitboxExp = false, HitboxMult = 4, CrimFinder = false, TeamDisplay = false }
+local _G = { WSEnabled = false, WS = 16, JP = 50, InfJump = false, Noclip = false, RainbowUI = false, CrimESP = false, SheriffESP = false, UniESP = false, HitboxExp = false, HitboxMult = 4, CrimFinder = false, TeamDisplay = false }
 
 local function AddTab(name)
 	local Tab = Instance.new("TextButton")
@@ -137,13 +137,18 @@ local function AddTab(name)
 	Instance.new("UIPadding", Page).PaddingLeft = UDim.new(0, 5)
 
 	Tab.MouseButton1Click:Connect(function()
-		if CurrentPage then CurrentPage.Visible = false end
-		if CurrentTab then CurrentTab.BackgroundTransparency = 1 end
+		-- Fix stacking: Hide all pages first
+		for _, v in pairs(PageContainer:GetChildren()) do
+			if v:IsA("ScrollingFrame") then v.Visible = false end
+		end
+		for _, v in pairs(Sidebar:GetChildren()) do
+			if v:IsA("TextButton") then v.BackgroundTransparency = 1 end
+		end
+		
 		CurrentPage, CurrentTab = Page, Tab
 		Page.Visible = true
 		Tab.BackgroundTransparency = 0.9
 		Page.CanvasPosition = Vector2.new(0, 0)
-		PageLayout:ApplyLayout()
 	end)
 	return Page
 end
@@ -274,11 +279,12 @@ AddToggle(GamePage, "Hitbox Expander", false, 7, function(v) _G.HitboxExp = v en
 AddToggle(GamePage, "Criminal Finder", false, 8, function(v) _G.CrimFinder = v end)
 AddTextBox(GamePage, "Hitbox Multiplier", "4", 9, function(v) _G.HitboxMult = tonumber(v) or 4 end)
 
-AddHeader(PlayerPage, "Player", -100)
-AddTextBox(PlayerPage, "Walk Speed", "16", 1, function(v) _G.WS = tonumber(v) or 16 end)
-AddTextBox(PlayerPage, "Jump Power", "50", 2, function(v) _G.JP = tonumber(v) or 50 end)
-AddToggle(PlayerPage, "Infinite Jump", false, 3, function(v) _G.InfJump = v end)
-AddToggle(PlayerPage, "Noclip", false, 4, function(v) _G.Noclip = v end)
+AddHeader(PlayerPage, "Movement", -100)
+AddToggle(PlayerPage, "Enable WalkSpeed", false, 1, function(v) _G.WSEnabled = v end)
+AddTextBox(PlayerPage, "Speed Value", "16", 2, function(v) _G.WS = tonumber(v) or 16 end)
+AddTextBox(PlayerPage, "Jump Power", "50", 3, function(v) _G.JP = tonumber(v) or 50 end)
+AddToggle(PlayerPage, "Infinite Jump", false, 4, function(v) _G.InfJump = v end)
+AddToggle(PlayerPage, "Noclip", false, 5, function(v) _G.Noclip = v end)
 
 AddHeader(SettingsPage, "Settings", -100)
 AddHeader(SettingsPage, "Essentials", -90)
@@ -425,7 +431,9 @@ local FrameCount = 0
 RunService.Heartbeat:Connect(function()
     if not Running then return end
     if Player.Character and Player.Character:FindFirstChild("Humanoid") then
-		Player.Character.Humanoid.WalkSpeed = _G.WS
+		if _G.WSEnabled then
+			Player.Character.Humanoid.WalkSpeed = _G.WS
+		end
 		Player.Character.Humanoid.JumpPower = _G.JP
 		if _G.Noclip then
 			for _, v in pairs(Player.Character:GetDescendants()) do
@@ -485,5 +493,7 @@ MakeDraggable(ET_Main)
 MakeDraggable(ET_Toggle)
 ET_Toggle.MouseButton1Click:Connect(function() ET_Main.Visible = not ET_Main.Visible end)
 
+-- Set first page visible and handle tab button highlighting
 MainPage.Visible = true
-
+for _, v in pairs(Sidebar:GetChildren()) do
+    if v:IsA("TextButton") a
