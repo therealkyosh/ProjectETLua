@@ -8,7 +8,6 @@ local MarketplaceService = game:GetService("MarketplaceService")
 local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
 
--- Detect Executor
 local Executor = "Unknown"
 if identifyexecutor then
     Executor = identifyexecutor()
@@ -137,7 +136,6 @@ local function AddTab(name)
 	Instance.new("UIPadding", Page).PaddingLeft = UDim.new(0, 5)
 
 	Tab.MouseButton1Click:Connect(function()
-		-- Fix stacking: Hide all pages first
 		for _, v in pairs(PageContainer:GetChildren()) do
 			if v:IsA("ScrollingFrame") then v.Visible = false end
 		end
@@ -253,12 +251,18 @@ local function AddToggle(parent, text, default, order, callback)
 		callback(state)
 	end)
 end
-
+local ChangelogPage = AddTab("Channelog")
 local MainPage = AddTab("Main")
 local GamePage = AddTab("Game")
 local PlayerPage = AddTab("Player")
 local SettingsPage = AddTab("Settings")
 local CreditsPage = AddTab("Credits")
+
+AddHeader(ChangelogPage, "New!!", 1)
+AddInfoLabel(ChangelogPage, "[+] Added WalkSpeed Toggle", 2)
+AddInfoLabel(ChangelogPage, "[^] Tab Glitching Overlapping Fixed", 3)
+AddInfoLabel(ChangelogPage, "[^] Added 'Channelog' Tab", 4)
+AddInfoLabel(ChangelogPage, "[^] Fixed Hitbox Expander", 5)
 
 AddHeader(MainPage, "Player Information", 1)
 AddInfoLabel(MainPage, "Username: " .. Player.Name, 2)
@@ -345,7 +349,6 @@ local function UpdateLogic()
             local isCrim = string.find(string.lower(teamName), "crim")
             local isSheriff = string.find(string.lower(teamName), "sheriff")
             
-            -- Updated Player Display Logic
             local tag = v.Character:FindFirstChild("ET_TeamTag")
             if _G.TeamDisplay then
                 if not tag and v.Character:FindFirstChild("Head") then
@@ -360,7 +363,6 @@ local function UpdateLogic()
                     txt.Size = UDim2.new(1, 0, 1, 0)
                     txt.Font = Enum.Font.GothamBold
                     txt.TextSize = 14
-                    -- Changed text to strictly say [Player]
                     txt.Text = "[Player]"
                     txt.TextColor3 = v.TeamColor and v.TeamColor.Color or Color3.fromRGB(255, 255, 255)
                     txt.TextStrokeTransparency = 0.5
@@ -368,7 +370,6 @@ local function UpdateLogic()
                 end
             elseif tag then tag:Destroy() end
 
-            -- ESP Logic
             local highlight = v.Character:FindFirstChild("ET_Highlight")
             if _G.CrimESP or _G.SheriffESP or _G.UniESP then
                 if not highlight then
@@ -389,7 +390,6 @@ local function UpdateLogic()
                 end
             elseif highlight then highlight:Destroy() end
 
-            -- Criminal Finder Logic
             local finder = v.Character:FindFirstChild("ET_Finder")
             if _G.CrimFinder and isCrim then
                 if not finder and v.Character:FindFirstChild("Head") then
@@ -409,7 +409,6 @@ local function UpdateLogic()
                 end
             elseif finder then finder:Destroy() end
 
-            -- Hitbox Logic
             local hrp = v.Character:FindFirstChild("HumanoidRootPart")
             if hrp then
                 if _G.HitboxExp then
@@ -493,7 +492,9 @@ MakeDraggable(ET_Main)
 MakeDraggable(ET_Toggle)
 ET_Toggle.MouseButton1Click:Connect(function() ET_Main.Visible = not ET_Main.Visible end)
 
--- Set first page visible and handle tab button highlighting
-MainPage.Visible = true
+ChangelogPage.Visible = true
 for _, v in pairs(Sidebar:GetChildren()) do
-    if v:IsA("TextButton") a
+    if v:IsA("TextButton") and v.Text == "Channelog" then
+        v.BackgroundTransparency = 0.9
+    end
+end
